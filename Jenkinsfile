@@ -1,20 +1,23 @@
-#! /usr/bin/env groovy
-
 pipeline {
-
   agent any
   environment {
-    SPECTRAL_DSN = 'https://spu-f641f73b9c03467eb3544c4095b3d04e@get.spectralops.io'
+    SPECTRAL_DSN = 'https://spu-2ec864fed0874ad892cca53201af9782@spectral-eu.checkpoint.com'
   }
   stages {
     stage('install Spectral') {
       steps {
-        sh "curl -L 'https://get.spectralops.io/latest/x/sh?key=spu-f641f73b9c03467eb3544c4095b3d04e' | sh"
+        sh "curl -L 'https://spectral-eu.checkpoint.com/latest/x/sh?dsn=$SPECTRAL_DSN' | sh"
       }
     }
     stage('scan for issues') {
       steps {
-        sh " $HOME/.spectral/spectral scan --engines oss"
+        sh "$HOME/.spectral/spectral scan --ok --engines secrets,iac,oss --include-tags base,audit3,iac"
+      }
+    }
+    stage('build') {
+      steps {
+        // your build scripts
+        sh "./build.sh"
       }
     }
   }
